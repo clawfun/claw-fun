@@ -60,3 +60,6 @@ prisma/*.db-journal
 # Keys (never commit!)
 *.json.key
 keypair*.json
+
+# Claude Code
+.claude/

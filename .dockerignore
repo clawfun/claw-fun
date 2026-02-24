@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+apps/cli/target
+.turbo
+coverage
+.DS_Store
+*.log
