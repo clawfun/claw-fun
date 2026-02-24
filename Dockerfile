@@ -1,7 +1,8 @@
 # Build stage
 FROM node:20-alpine AS builder
 
-RUN apk add --no-cache libc6-compat openssl
+# Install build dependencies for native modules (usb, etc.)
+RUN apk add --no-cache libc6-compat openssl python3 make g++ linux-headers eudev-dev libusb-dev
 
 WORKDIR /app
 
