@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Token {
+  id                   String    @id @default(cuid())
+  mint                 String    @unique
+  name                 String
+  symbol               String
+  description          String?
+  image                String?
+  twitter              String?
+  telegram             String?
+  website              String?
+  creator              String
+  bondingCurve         String    @unique
+  virtualSolReserves   BigInt    @default(30000000000)
+  virtualTokenReserves BigInt    @default(1000000000000000)
+  realSolReserves      BigInt    @default(0)
+  realTokenReserves    BigInt    @default(0)
+  marketCapSol         Float     @default(0)
+  migrated             Boolean   @default(false)
+  migrationTx          String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  trades    Trade[]
+  comments  Comment[]
+  holders   Holder[]
+
+  @@index([creator])
+  @@index([createdAt])
+  @@index([marketCapSol])
+  @@index([migrated])
+}
+
+model Trade {
+  id          String    @id @default(cuid())
+  tokenId     String
+  token       Token     @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  signature   String    @unique
+  trader      String
+  type        TradeType
+  solAmount   BigInt
+  tokenAmount BigInt
+  price       Float
+  timestamp   DateTime
+
+  @@index([tokenId])
+  @@index([trader])
+  @@index([timestamp])
+}
+
+model User {
+  id        String    @id @default(cuid())
+  wallet    String    @unique
+  username  String?   @unique
+  bio       String?
+  avatar    String?
+  twitter   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  comments  Comment[]
+
+  @@index([wallet])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  tokenId   String
+  token     Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([tokenId])
+  @@index([userId])
+}
+
+model Holder {
+  id        String   @id @default(cuid())
+  tokenId   String
+  token     Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  wallet    String
+  balance   BigInt
+  updatedAt DateTime @updatedAt
+
+  @@unique([tokenId, wallet])
+  @@index([tokenId])
+  @@index([wallet])
+}
+
+model PlatformStats {
+  id            String   @id @default("singleton")
+  totalVolume   BigInt   @default(0)
+  totalTrades   Int      @default(0)
+  totalTokens   Int      @default(0)
+  totalMigrated Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
+
+enum TradeType {
+  BUY
+  SELL
+}
