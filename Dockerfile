@@ -13,8 +13,8 @@ COPY apps/web/package.json ./apps/web/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY packages/vanity-core/package.json ./packages/vanity-core/
 
-# Install all dependencies
-RUN npm install
+# Install dependencies (skip optional native modules that hang)
+RUN npm install --ignore-optional --no-audit --no-fund
 
 # Copy source files
 COPY . .
